@@ -1,6 +1,12 @@
-data:
-  dataset: COCO
-  path: /Dataset/COCO_mini/
+defaults:
+  - base/base
+  - _self_
+
+base:
+  dataset:
+    batch_size: 1
+    num_workers: 0
+    transforms: ddd
 
 model:
   backbone: ResNet
@@ -12,6 +18,3 @@ optim:
   optimizer:
   learning_rate:
   scheduler:
-
-eval:
-  evaluator: 

@@ -1,0 +1,10 @@
+# @package base.dataset
+
+root: /Dataset/COCO_mini/
+name: coco
+train_images: train2017/
+train_labels: annotations/instances_train2017.json
+val_images: val2017
+val_labels: annotations/instances_val2017.json
+batch_size: 1
+num_workers: 0

@@ -1,10 +1,13 @@
 import hydra
 # from omegaconf import DictConfig
 
+## My Module
+from src.data.dataloader import build_dataloaders
 
-@hydra.main(version_base=None, config_path="config", config_name="test")
+@hydra.main(version_base=None, config_path="config",)
 def main(config):
-    breakpoint()
+    import ipdb; ipdb.set_trace()
+    a, b = build_dataloaders(config)
     print(config)
 
 

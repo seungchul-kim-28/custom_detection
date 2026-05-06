@@ -1,0 +1,10 @@
+# @package base.eval
+
+evaluator: coco
+conf_thrs: 0.25
+iou_thrs: 0.7
+metrics:
+  - map50
+  - map50_95
+  - precision
+  - recall
