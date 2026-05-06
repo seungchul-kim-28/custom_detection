@@ -9,6 +9,8 @@ base:
     transforms: ddd
 
 model:
+  _target_: src.models.detr.DETR
+  name: DETR
   backbone: ResNet
   encoder: TransformerEncoder
   decoder: TransformerDecoder
@@ -18,3 +20,7 @@ optim:
   optimizer:
   learning_rate:
   scheduler:
+
+runtime:
+  epoch: 10
+  
