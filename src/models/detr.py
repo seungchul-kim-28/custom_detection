@@ -10,8 +10,10 @@ class DETR(nn.Module):
         self.encoder = DETREncoder(config)
         self.decoder = DETRDecoder(config)
 
+        self.inp_proj = nn.Conv2d(self.backbone.out_channels, config.embed_dims, kernel_size=1)
+
     def forward(self, x):
         b_out = self.backbone(x)
-        e_out = self.encoder(b_out)
+        e_out = self.encoder(self.inp_proj(b_out))
         d_out = self.decoder(e_out)
         return d_out

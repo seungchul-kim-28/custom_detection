@@ -6,7 +6,8 @@ import torch.nn as nn
 
 ## My Module
 from src.data.dataloader import build_dataloaders
-from src.models.builder import build_model
+from src.models.model_builder import build_model
+from src.loss_fn.loss_builder import build_criterion
 
 
 @hydra.main(version_base=None, config_path="config",)
@@ -14,9 +15,12 @@ def main(config):
     train_loader, val_loader = build_dataloaders(config)
     import ipdb; ipdb.set_trace()
     model = build_model(config)
+    criterion = build_criterion(config)
+
     for epoch in range(1, int(config.runtime.epoch)+1):
         train_one_epoch(train_loader, model, epoch )
-        pass
+        evaluate(config)
+
     print(config)
 
 def train_one_epoch(train_loader: DataLoader, model: nn.Module, epoch: int):

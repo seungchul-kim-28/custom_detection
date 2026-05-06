@@ -7,14 +7,24 @@ base:
     batch_size: 1
     num_workers: 0
     transforms: ddd
+    num_classes: 80
 
 model:
-  _target_: src.models.detr.DETR
   name: DETR
-  backbone: ResNet
-  encoder: TransformerEncoder
-  decoder: TransformerDecoder
+  backbone_name: 18
+  num_heads: 8
+  num_enc_layers: 6
+  num_dec_layers: 6
+  dim_ffn: 2048
+  embed_dims: 256
+  drop_rate: 0.5
 
+
+criterion:
+  name: DETRCriterion
+  cls_weight: 0.1
+  box_weight: 0.1
+  iou_weight: 0.1
 
 optim:
   optimizer:
