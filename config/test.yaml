@@ -1,0 +1,17 @@
+data:
+  dataset: COCO
+  path: /Dataset/COCO_mini/
+
+model:
+  backbone: ResNet
+  encoder: TransformerEncoder
+  decoder: TransformerDecoder
+
+
+optim:
+  optimizer:
+  learning_rate:
+  scheduler:
+
+eval:
+  evaluator: 

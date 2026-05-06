@@ -1,0 +1,7 @@
+Data:
+  dataset: COCO
+  path: /Dataset/COCO_mini/
+Model:
+  backbone: null
+  encoder: null
+  decoder: null
