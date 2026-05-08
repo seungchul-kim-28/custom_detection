@@ -8,16 +8,25 @@ base:
     num_workers: 0
     transforms: ddd
     num_classes: 80
+  transforms:
+    Resize
+    ToTensor
 
 model:
   name: DETR
-  backbone_name: 18
+  
+  # Backbone Config
+  backbone_name: resnet18
+  
+  # Transformer Config
   num_heads: 8
   num_enc_layers: 6
   num_dec_layers: 6
-  dim_ffn: 2048
+  dim_ffn: 512
   embed_dims: 256
-  drop_rate: 0.5
+  drop_rate: 0.1
+  num_queries: 100
+  use_aux: True
 
 
 criterion:
@@ -27,8 +36,8 @@ criterion:
   iou_weight: 0.1
 
 optim:
-  optimizer:
-  learning_rate:
+  optimizer: Adam
+  learning_rate: 1e-5
   scheduler:
 
 runtime:

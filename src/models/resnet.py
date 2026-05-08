@@ -6,7 +6,7 @@ from torchvision.models import resnet18, resnet50, resnet101
 class ResNet(nn.Module):
     def __init__(self, config):
         super().__init__()
-        backbone_num = int(config.model.backbone.num)
+        backbone_num = int(config.model.backbone_name[6:])
         self.body = self._build_backbone(backbone_num)
         self.out_channels = 512 if backbone_num == 18 else 2048
 
