@@ -12,3 +12,4 @@ weights/
 *.pth
 *.onnx
 outputs/
+.png
