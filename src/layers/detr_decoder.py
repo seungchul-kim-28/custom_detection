@@ -44,11 +44,11 @@ class DETRDecoder(nn.Module):
                 nn.Linear(config.model.embed_dims, 4)
             )
     
-    def forward(self, query, memory):
+    def forward(self, o_query, memory, pos):
         pred_logits = []
         pred_boxes = []
         for idx, layer in enumerate(self.layers):
-            out = layer(query)
+            out = layer(o_query)
 
             if self.use_aux:
                 pred_logits.append(self.cls_proj[idx](out))

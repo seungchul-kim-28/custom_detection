@@ -13,12 +13,14 @@ class DETR(nn.Module):
         self.decoder = DETRDecoder(config)
         # import ipdb; ipdb.set_trace()
         self.inp_proj = nn.Conv2d(config.model.dim_ffn, config.model.embed_dims, kernel_size=1)
+        self.positional_encoding = PositionalEncoding()
 
     def forward(self, x):
         b_out = self.backbone(x)
         import ipdb; ipdb.set_trace()
-        e_out = self.encoder(self.inp_proj(b_out))
-        d_out = self.decoder(e_out)
+        pos = self.positional_encoding(b_out)
+        e_out = self.encoder(self.inp_proj(b_out), pos)
+        d_out = self.decoder(e_out, pos)
         return d_out
     
 class PositionalEncoding(nn.Module):

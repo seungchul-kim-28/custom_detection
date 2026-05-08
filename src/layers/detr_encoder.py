@@ -14,24 +14,27 @@ class DETREncoderLayer(nn.Module):
         self.drop1 = nn.Dropout(config.model.drop_rate)
         self.norm2 = nn.LayerNorm(config.model.embed_dims)
         self.drop2 = nn.Dropout(config.model.drop_rate)
+        self.ffn = nn.Linear(config.model.embed_dims, config.model.embed_dims)
 
     def forward(self, query, key, value):
-        return None
+        sa_out = self.self_attn(query, key, value)
+        query = query + sa_out
+        norm1 = self.norm1(query)
+        ffn = self.ffn(norm1)
+        ffn = ffn + norm1
+        return ffn
 
 class DETREncoder(nn.Module):
-    def __init__(self, config, with_pos_embed):
+    def __init__(self, config,):
         super().__init__()
         self.use_aux = config.model.use_aux
-        self.with_pos_embed = with_pos_embed
-        self.positional_encoding = PositionalEncoding()
         self.layers = nn.ModuleList(
             DETREncoderLayer(config) for _ in range(int(config.model.num_enc_layers))
         )
         
     
-    def forward(self, x):
+    def forward(self, x, pos):
         out = x
-        pos = self.positional_encoding(x)
         if self.use_aux:
             res = []
         for layer in self.layers:
