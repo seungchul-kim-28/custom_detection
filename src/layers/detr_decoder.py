@@ -1,12 +1,12 @@
 import torch.nn as nn
 import torch
-
-
+from src.models.detr import with_pos_embed, PositionalEncoding
 
 
 class DETRDecoderLayer(nn.Module):
-    def __init__(self, config):
+    def __init__(self, config, with_pos_embed=True):
         super().__init__()
+        self.with_pos_embed = with_pos_embed
         self.self_attn = nn.MultiheadAttention(embed_dim=config.model.embed_dims,
                                                num_heads=config.model.num_heads,)
         self.cross_attn = nn.MultiheadAttention(embed_dim=config.model.embed_dims,
