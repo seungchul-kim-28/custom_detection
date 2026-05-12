@@ -4,6 +4,7 @@ CRITERION_REGISTRY={
     'DETRCriterion': DETRCriterion
 }
 
+
 def build_criterion(config):
     crit_name = config.criterion.name
 

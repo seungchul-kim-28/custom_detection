@@ -1,9 +1,10 @@
 import torch.nn as nn
 import torch
-from src.models.detr import with_pos_embed, PositionalEncoding
+# from src.models.detr import with_pos_embed, PositionalEncoding
+# from src.models.positional_encoding import with_pos_embed
 
 class DETREncoderLayer(nn.Module):
-    def __init__(self, config, with_pos_embed):
+    def __init__(self, config,):
         super().__init__()
         self.self_attn = nn.MultiheadAttention(embed_dim=config.model.embed_dims,
                                                num_heads=config.model.num_heads,)
@@ -17,32 +18,31 @@ class DETREncoderLayer(nn.Module):
         self.ffn = nn.Linear(config.model.embed_dims, config.model.embed_dims)
 
     def forward(self, query, key, value):
-        sa_out = self.self_attn(query, key, value)
-        query = query + sa_out
-        norm1 = self.norm1(query)
+        # import ipdb; ipdb.set_trace()
+        sa_out = self.self_attn(query, key, value)[0]
+        norm1 = self.norm1(query + self.drop1(sa_out))
         ffn = self.ffn(norm1)
-        ffn = ffn + norm1
-        return ffn
+        norm2 = self.norm2(ffn + self.drop2(norm1))
+        return norm2
 
 class DETREncoder(nn.Module):
     def __init__(self, config,):
         super().__init__()
-        self.use_aux = config.model.use_aux
         self.layers = nn.ModuleList(
             DETREncoderLayer(config) for _ in range(int(config.model.num_enc_layers))
         )
-        
+    
+    @staticmethod
+    def with_pos_embed(tensor, pos):
+        return tensor if pos is None else tensor + pos
     
     def forward(self, x, pos):
         out = x
-        if self.use_aux:
-            res = []
+        
         for layer in self.layers:
-            out = layer(query=with_pos_embed(out, pos), 
-                        key=with_pos_embed(out, pos),
+            out = layer(query=self.with_pos_embed(out, pos), 
+                        key=self.with_pos_embed(out, pos),
                         value = out)
-            if self.use_aux:
-                res.append(out)
-
-        return res if self.use_aux else out
+        
+        return out
  

@@ -24,7 +24,7 @@ def main(config):
 
 def train_one_epoch(train_loader: DataLoader, model: nn.Module, epoch: int):
     for img, target in train_loader:
-        model(img)
+        out = model(img)
     return 1
 
 def evaluate(config):

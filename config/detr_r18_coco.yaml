@@ -22,11 +22,12 @@ model:
   num_heads: 8
   num_enc_layers: 6
   num_dec_layers: 6
-  dim_ffn: 512
-  embed_dims: 256
+  dim_ffn: 2048
+  embed_dims: 512
   drop_rate: 0.1
   num_queries: 100
   use_aux: True
+  num_pos_feat: 256 # embed_dims / 2
 
 
 criterion:

@@ -1,6 +1,7 @@
-from ..layers.detr_decoder import DETRDecoder
-from ..layers.detr_encoder import DETREncoder
-from .resnet import ResNet
+from src.layers.detr_decoder import DETRDecoder
+from src.layers.detr_encoder import DETREncoder
+from src.models.resnet import ResNet
+from src.models.positional_encoding import PositionalEncoding
 import torch
 import torch.nn as nn
 import math
@@ -12,60 +13,24 @@ class DETR(nn.Module):
         self.encoder = DETREncoder(config)
         self.decoder = DETRDecoder(config)
         # import ipdb; ipdb.set_trace()
-        self.inp_proj = nn.Conv2d(config.model.dim_ffn, config.model.embed_dims, kernel_size=1)
-        self.positional_encoding = PositionalEncoding()
-
+        self.inp_proj = nn.Conv2d(config.model.embed_dims, config.model.embed_dims, kernel_size=1)
+        self.positional_encoding = PositionalEncoding(num_pos_feats=config.model.num_pos_feat)
+        self.query_embed = nn.Embedding(num_embeddings=config.model.num_queries,
+                                        embedding_dim=config.model.embed_dims).weight
+        
     def forward(self, x):
         b_out = self.backbone(x)
+        B, D, H, W = b_out.shape
+        pos = self.positional_encoding(b_out).flatten(2).permute(2,0,1)
+        query_embed = self.query_embed.unsqueeze(0).repeat(B, 1, 1).permute(1,0,2)
+        src = self.inp_proj(b_out).flatten(2).permute(2,0,1)
+        tgt = torch.zeros_like(query_embed)
+
+        e_out = self.encoder(src, pos)
+
+        out = self.decoder(query=tgt,
+                             memory=e_out,
+                             query_pos=query_embed,
+                             pos=pos)
         import ipdb; ipdb.set_trace()
-        pos = self.positional_encoding(b_out)
-        e_out = self.encoder(self.inp_proj(b_out), pos)
-        d_out = self.decoder(e_out, pos)
-        return d_out
-    
-class PositionalEncoding(nn.Module):
-    def __init__(self, num_pos_feats=128, temperature=10000, normalize=True,):
-        super().__init__()
-        self.num_pos_feats = num_pos_feats
-        self.temp = temperature
-        self.normalize = normalize
-        self.scale = 2 * math.pi
-
-    def forward(self, x):
-        B, _, H, W = x.shape
-        mask = torch.zeros((B, H, W), dtype=torch.bool, device=x.device)
-
-        y_embed = ~mask.cumsum(dim=1, dtype=torch.float32)
-        x_embed = ~mask.cumsum(dim=2, dtype=torch.float32)
-
-        if self.normalize:
-            y_embed = y_embed / (y_embed[:, -1:, :] + 1e-6) * self.scale
-            x_embed = x_embed / (x_embed[:, :, -1:] + 1e-6) * self.scale
-
-        dim_t = torch.arange(
-            self.num_pos_feats,
-            dtype=torch.float32,
-            device=x.device,
-        )
-
-        dim_t = self.temperature ** (
-            2 * torch.div(dim_t, 2, rounding_mode="floor") / self.num_pos_feats
-        )
-
-        pos_x = x_embed[:, :, :, None] / dim_t
-        pos_y = y_embed[:, :, :, None] / dim_t
-
-        pos_x = torch.stack((pos_x[:, :, :, 0::2].sin(), pos_x[:, :, :, 1::2].cos()),
-                            dim=4).flatten(3)
-
-        pos_y = torch.stack((pos_y[:, :, :, 0::2].sin(), pos_y[:, :, :, 1::2].cos()),
-                            dim=4).flatten(3)
-
-        pos = torch.cat((pos_y, pos_x), dim=3)
-
-        pos = pos.permute(0, 3, 1, 2)
-
-        return pos
-    
-def with_pos_embed(tensor, pos):
-    return tensor if pos is None else tensor+pos
+        return out
