@@ -4,13 +4,11 @@ defaults:
 
 base:
   dataset:
-    batch_size: 1
+    batch_size: 2
     num_workers: 0
     transforms: ddd
     num_classes: 80
-  transforms:
-    Resize
-    ToTensor
+    reshape_size: [640, 640]
 
 model:
   name: DETR
@@ -29,9 +27,15 @@ model:
   use_aux: True
   num_pos_feat: 256 # embed_dims / 2
 
+matcher:
+  name: HungarianMatcher
+  cost_class: 1
+  cost_bbox: 5
+  cost_giou: 2
 
 criterion:
   name: DETRCriterion
+  loss_name: [labels, boxes]
   cls_weight: 0.1
   box_weight: 0.1
   iou_weight: 0.1

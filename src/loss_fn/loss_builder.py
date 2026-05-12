@@ -5,10 +5,10 @@ CRITERION_REGISTRY={
 }
 
 
-def build_criterion(config):
+def build_criterion(config, matcher):
     crit_name = config.criterion.name
 
     if crit_name not in CRITERION_REGISTRY:
         raise ValueError(f"Unknown Criterion : {crit_name}")
     
-    return CRITERION_REGISTRY[crit_name](config)
+    return CRITERION_REGISTRY[crit_name](config, matcher)
